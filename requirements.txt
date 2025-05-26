@@ -1,6 +1,7 @@
-cffi==1.17.1
-charset-normalizer==3.4.2
-cryptography==45.0.3
 pdfminer.six==20250506
-pycparser==2.22
 PyMuPDF==1.26.0
+python-docx==1.1.0
+cryptography==45.0.3
+cffi==1.17.1
+pycparser==2.22
+charset-normalizer==3.4.2

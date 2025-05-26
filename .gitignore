@@ -1,7 +1,10 @@
 __pycache__/
+.venv/
 .env
 *.log
 *.pyc
 *.swp
 .DS_Store
-.venv/
+openai.key
+anythingllm/
+requirements.txt
