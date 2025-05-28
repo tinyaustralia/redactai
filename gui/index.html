@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Redax - Dark Mode</title>
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Choices.js CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css"
+        />
+        <!-- Custom Stylesheet -->
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body> 
+        <div class="app-container w-full max-w-none">
+            <header class="app-header flex-shrink-0 pb-3 mb-4 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-sky-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-3.309-2.691-6-6-6S0 7.691 0 11s2.691 6 6 6 6-2.691 6-6zM12 0v24M12 11c0-3.309 2.691-6 6-6s6 2.691 6 11-2.691 6-6 6-6-2.691-6-6z"></path></svg>
+                    <span class="text-xl font-semibold text-slate-200">Redax</span>
+                </div>
+                <button id="resetAppBtn" class="bg-slate-600 hover:bg-slate-500 text-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-md">Reset</button>
+            </header>
+            
+            <main class="main-content-area flex-grow grid grid-cols-1 md:grid-cols-3 gap-x-5">
+                <!-- Column 1: File Management -->
+                <div class="column-content">
+                    <div class="mb-3 pt-2"><div class="bg-sky-600 text-white text-2xl font-bold w-10 h-10 rounded-full flex items-center justify-center">1</div></div>
+                    <div class="space-y-5 px-1"> 
+                        <section aria-labelledby="select-files-heading">
+                            <div class="section-title-group">
+                                <h2 id="select-files-heading" class="text-slate-200">Select Files</h2>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Click the 'Upload Documents' button to choose one or more files (up to 5) from your computer. Supported formats: .docx, .xlsx, .pptx, .rtf, .md, .txt.</span></span>
+                            </div>
+                            <button id="selectFilesBtn" class="w-full bg-slate-600 hover:bg-slate-700 text-white rounded-md focus:outline-none">Upload Documents</button>
+                            <ul id="fileList" class="mt-2 bg-slate-800 p-2 border border-slate-700 rounded-md">
+                                <li class="text-slate-500 italic">Upload documents for processing redactions (Max 5).</li>
+                            </ul>
+                        </section>
+                        <section aria-labelledby="output-format-heading">
+                             <div class="section-title-group">
+                                <h2 id="output-format-heading" class="text-slate-200">Output Format</h2>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Select the desired file format for your redacted documents. Markdown (.md) is a lightweight text format. PDF (.pdf) is a portable document format, good for sharing.</span></span>
+                            </div>
+                            <div class="relative">
+                                <select id="outputFormat" class="block w-full appearance-none bg-slate-700 border border-slate-600 text-slate-200 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                                    <option value="md" selected>Markdown (.md)</option>
+                                    <option value="pdf">PDF (.pdf)</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400"><svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Column 2: Redaction Configuration -->
+                <div class="column-content">
+                    <div class="mb-3 pt-2"><div class="bg-sky-600 text-white text-2xl font-bold w-10 h-10 rounded-full flex items-center justify-center">2</div></div>
+                    <div class="space-y-5 px-1"> 
+                        <section aria-labelledby="redaction-options-heading">
+                             <div class="section-title-group">
+                                <h2 id="redaction-options-heading" class="text-slate-200">Redaction Options</h2>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Choose from predefined patterns to automatically redact common sensitive information. You can select multiple options. Start typing in the box to search and filter patterns.</span></span>
+                            </div>
+                            <div class="text-sm"><select id="redactionPatternsSelect" multiple class="w-full"></select></div>
+                        </section>
+                        <section aria-labelledby="custom-keywords-heading" class="mt-auto pt-3"> 
+                            <div class="section-title-group">
+                                <h2 id="custom-keywords-heading" class="text-slate-200">Custom Keywords</h2>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Enter a comma-separated list of specific words or phrases (e.g., 'Project X, secret code, client_name') that you want to redact from your documents in addition to the selected patterns.</span></span>
+                            </div>
+                            <label for="customKeywords" class="sr-only">Custom Keywords (comma-separated):</label>
+                            <input type="text" id="customKeywords" placeholder="e.g., project_secret" class="block w-full px-3 bg-slate-700 border border-slate-600 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900"/>
+                            <p id="customKeywordsHelpText" class="text-slate-400 mt-1">Comma-separated words or phrases.</p>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Column 3: Actions & Results -->
+                <div class="column-content">
+                    <div class="mb-3 pt-2"><div class="bg-sky-600 text-white text-2xl font-bold w-10 h-10 rounded-full flex items-center justify-center">3</div></div>
+                    <div class="space-y-5 px-1"> 
+                        <section aria-labelledby="process-action-heading">
+                            <div class="section-title-group">
+                                <h2 id="process-action-heading" class="text-slate-200">Process</h2>
+                                 <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Click this button to begin redacting the selected files based on your chosen options and custom keywords. The processed files will appear in the 'Processed Files' section.</span></span>
+                            </div>
+                            <button id="processBtn" class="w-full bg-lime-600 hover:bg-lime-700 text-white rounded-md focus:outline-none">Start Redaction</button>
+                        </section>
+                        <section aria-labelledby="status-heading" class="flex-grow flex flex-col"> 
+                            <div class="section-title-group">
+                                <h2 id="status-heading" class="text-slate-200">Status</h2>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">Displays real-time updates, success messages, or any errors encountered during the file selection, processing, or saving stages.</span></span>
+                            </div>
+                            <div id="statusBar" class="text-center border rounded-md border-slate-700 flex items-center justify-center">Ready. Select files to begin.</div>
+                        </section>
+                        <section aria-labelledby="results-heading" id="outputSection" style="display: none" class="mt-auto pt-3">  
+                            <div class="section-title-group">
+                                <h3 id="results-heading" class="text-slate-200">Processed Files</h3>
+                                <span class="tooltip-icon" tabindex="0">?<span class="tooltip-text">After successful redaction, your processed files will be listed here. Click the 'Download' button next to a file to save its redacted version to your computer.</span></span>
+                            </div>
+                            <ul id="processedFileList" class="bg-slate-800 p-2 rounded-md border border-slate-700"></ul>
+                        </section>
+                    </div>
+                </div>
+            </main>
+            
+            <footer class="app-footer flex-shrink-0 pt-3 mt-4 flex items-center justify-between border-t border-slate-700">
+                <p class="text-xs text-slate-400">Easily redact sensitive information from your documents before sharing.</p>
+                <p class="text-xs text-slate-500 text-right">&copy;2025 Marco Moretti. All rights reserved.</p>
+            </footer>
+        </div>
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>
