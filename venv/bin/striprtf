@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/Marco/Library/Mobile Documents/com~apple~CloudDocs/Development/git/Redax/venv/bin/python3" "$0" "$@"
+'''exec' "/Users/Marco/Library/Mobile Documents/com~apple~CloudDocs/Development/git/Redax/venv/bin/python3.13" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
