@@ -1,11 +1,11 @@
 import os
-import re
+
 import pypandoc # pypandoc will use the PANDOC_PATH set by the main app
 import shutil
 from docx import Document as DocxDocument
 # from openpyxl import load_workbook # Add back if handling xlsx
 # from pptx import Presentation     # Add back if handling pptx
-from striprtf.striprtf import rtf_to_text
+
 
 TEMP_DIR_NAME = "redax_processing_temp_webview" # Unique temp dir
 

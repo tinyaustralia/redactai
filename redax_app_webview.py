@@ -10,7 +10,6 @@ import pypandoc
 import platform
 import requests
 import zipfile
-import tarfile # Kept for potential future macOS Intel archives if they are .tar.gz
 import stat # For setting executable permissions
 # import json # Removed as it's not currently used
 
@@ -128,65 +127,64 @@ def ensure_pandoc_downloaded_macos():
     global initial_pandoc_status_message
     print("DEBUG: Entered ensure_pandoc_downloaded_macos()")
     os_subdir, pandoc_archive_name, pandoc_exe_name = get_pandoc_arch_details_macos()
-
     if not os_subdir:
         initial_pandoc_status_message = "Pandoc download skipped: Not a supported macOS system for this script."
         print(f"DEBUG: {initial_pandoc_status_message}")
         return None
 
-    local_pandoc_dir = os.path.join(PANDOC_NATIVE_DIR, os_subdir)
-    local_pandoc_exe_path = os.path.join(local_pandoc_dir, pandoc_exe_name)
+        local_pandoc_dir = os.path.join(PANDOC_NATIVE_DIR, os_subdir)
+        local_pandoc_exe_path = os.path.join(local_pandoc_dir, pandoc_exe_name)
     
-    os.makedirs(local_pandoc_dir, exist_ok=True)
-    print(f"DEBUG: Ensured local Pandoc directory: {local_pandoc_dir}")
+        os.makedirs(local_pandoc_dir, exist_ok=True)
+        print(f"DEBUG: Ensured local Pandoc directory: {local_pandoc_dir}")
 
-    if os.path.exists(local_pandoc_exe_path):
-        initial_pandoc_status_message = f"Using existing local Pandoc: {os_subdir}"
-        print(f"DEBUG: {initial_pandoc_status_message} at {local_pandoc_exe_path}")
-        return local_pandoc_exe_path
+        if os.path.exists(local_pandoc_exe_path):
+            initial_pandoc_status_message = f"Using existing local Pandoc: {os_subdir}"
+            print(f"DEBUG: {initial_pandoc_status_message} at {local_pandoc_exe_path}")
+            return local_pandoc_exe_path
 
-    initial_pandoc_status_message = f"Pandoc for {os_subdir} not found. Attempting download..."
-    print(f"DEBUG: {initial_pandoc_status_message}")
-    
-    pandoc_download_url = f"https://github.com/jgm/pandoc/releases/download/{PANDOC_VERSION_TAG}/{pandoc_archive_name}"
-    
-    temp_dir_for_download = os.path.join(PANDOC_NATIVE_DIR, "temp_download")
-    os.makedirs(temp_dir_for_download, exist_ok=True)
-    downloaded_archive_path = os.path.join(temp_dir_for_download, pandoc_archive_name)
-
-    if not download_file_with_progress(pandoc_download_url, downloaded_archive_path):
-        initial_pandoc_status_message = "Pandoc download failed."
-        shutil.rmtree(temp_dir_for_download, ignore_errors=True)
-        return None
-
-    initial_pandoc_status_message = "Pandoc downloaded. Extracting..."
-    print(f"DEBUG: {initial_pandoc_status_message}")
-
-    extracted_pandoc_path_in_temp = extract_archive_macos(downloaded_archive_path, temp_dir_for_download, pandoc_exe_name)
-
-    final_status_path = None
-    if extracted_pandoc_path_in_temp and os.path.exists(extracted_pandoc_path_in_temp):
-        print(f"DEBUG: Moving {extracted_pandoc_path_in_temp} to {local_pandoc_exe_path}")
-        try:
-            os.makedirs(os.path.dirname(local_pandoc_exe_path), exist_ok=True)
-            shutil.move(extracted_pandoc_path_in_temp, local_pandoc_exe_path)
-            
-            print(f"DEBUG: Setting executable permission for {local_pandoc_exe_path}")
-            current_permissions = os.stat(local_pandoc_exe_path).st_mode
-            os.chmod(local_pandoc_exe_path, current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-            
-            initial_pandoc_status_message = f"Pandoc for {os_subdir} installed successfully."
-            print(f"DEBUG: {initial_pandoc_status_message}")
-            final_status_path = local_pandoc_exe_path
-        except Exception as e:
-            initial_pandoc_status_message = f"Error installing Pandoc: {e}"
-            print(f"DEBUG: {initial_pandoc_status_message}")
-    else:
-        initial_pandoc_status_message = "Failed to extract Pandoc from archive."
+        initial_pandoc_status_message = f"Pandoc for {os_subdir} not found. Attempting download..."
         print(f"DEBUG: {initial_pandoc_status_message}")
     
-    shutil.rmtree(temp_dir_for_download, ignore_errors=True) 
-    return final_status_path
+        pandoc_download_url = f"https://github.com/jgm/pandoc/releases/download/{PANDOC_VERSION_TAG}/{pandoc_archive_name}"
+    
+        temp_dir_for_download = os.path.join(PANDOC_NATIVE_DIR, "temp_download")
+        os.makedirs(temp_dir_for_download, exist_ok=True)
+        downloaded_archive_path = os.path.join(temp_dir_for_download, pandoc_archive_name)
+
+        if not download_file_with_progress(pandoc_download_url, downloaded_archive_path):
+            initial_pandoc_status_message = "Pandoc download failed."
+            shutil.rmtree(temp_dir_for_download, ignore_errors=True)
+            return None
+
+        initial_pandoc_status_message = "Pandoc downloaded. Extracting..."
+        print(f"DEBUG: {initial_pandoc_status_message}")
+
+        extracted_pandoc_path_in_temp = extract_archive_macos(downloaded_archive_path, temp_dir_for_download, pandoc_exe_name)
+
+        final_status_path = None
+        if extracted_pandoc_path_in_temp and os.path.exists(extracted_pandoc_path_in_temp):
+            print(f"DEBUG: Moving {extracted_pandoc_path_in_temp} to {local_pandoc_exe_path}")
+            try:
+                os.makedirs(os.path.dirname(local_pandoc_exe_path), exist_ok=True)
+                shutil.move(extracted_pandoc_path_in_temp, local_pandoc_exe_path)
+            
+                print(f"DEBUG: Setting executable permission for {local_pandoc_exe_path}")
+                current_permissions = os.stat(local_pandoc_exe_path).st_mode
+                os.chmod(local_pandoc_exe_path, current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            
+                initial_pandoc_status_message = f"Pandoc for {os_subdir} installed successfully."
+                print(f"DEBUG: {initial_pandoc_status_message}")
+                final_status_path = local_pandoc_exe_path
+            except Exception as e:
+                initial_pandoc_status_message = f"Error installing Pandoc: {e}"
+                print(f"DEBUG: {initial_pandoc_status_message}")
+        else:
+            initial_pandoc_status_message = "Failed to extract Pandoc from archive."
+            print(f"DEBUG: {initial_pandoc_status_message}")
+    
+        shutil.rmtree(temp_dir_for_download, ignore_errors=True) 
+        return final_status_path
 
 def configure_pandoc_path():
     global initial_pandoc_status_message
@@ -374,14 +372,14 @@ class Api:
         if webview.windows:
             try:
                 print(f"DEBUG: Calling create_file_dialog for SAVE_DIALOG with suggested_filename: {suggested_filename}")
-                save_path_tuple = webview.windows[0].create_file_dialog(webview.SAVE_DIALOG, directory=os.path.expanduser('~'), save_filename=suggested_filename)
-                save_path = save_path_tuple[0] if isinstance(save_path_tuple, tuple) and save_path_tuple else save_path_tuple
+                # create_file_dialog with SAVE_DIALOG returns a single string path or None
+                save_path = webview.windows[0].create_file_dialog(webview.SAVE_DIALOG, directory=os.path.expanduser('~'), save_filename=suggested_filename)
                 print(f"DEBUG: Save dialog result: {save_path}")
 
-                if save_path:
-                    shutil.copy(temp_file_path, save_path)
+                if save_path: # save_path will be a string if user selected a file, or None if cancelled
+                    shutil.copy(temp_file_path, str(save_path)) # Ensure save_path is explicitly a string
                     print(f"DEBUG: File saved to: {save_path}")
-                    return {"success": True, "path": save_path}
+                    return {"success": True, "path": str(save_path)}
                 else:
                     print("DEBUG: Save dialog cancelled by user.")
                     return {"success": False, "message": "Save cancelled."}
@@ -410,7 +408,7 @@ def main():
 
     print("DEBUG: Creating webview window.")
     try:
-        window = webview.create_window(
+        _ = webview.create_window( # Assign to _ to indicate the variable itself is not used later
             APP_NAME,
             f'file://{html_file}', 
             js_api=api,
